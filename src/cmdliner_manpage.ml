@@ -450,7 +450,7 @@ let pp_to_pager print ppf v =
   match pager with
   | None -> print `Plain ppf v
   | Some pager ->
-      let cmd = match (find_cmd ["groff"; "nroff"]) with
+      let cmd = match (find_cmd ["mandoc -m man -K utf8 -T utf8"; "groff -m man -K utf8 -T utf8"; "nroff"]) with
       | None ->
           begin match pp_to_temp_file (print `Plain) v with
           | None -> None
@@ -460,8 +460,7 @@ let pp_to_pager print ppf v =
           begin match pp_to_temp_file (print `Groff) v with
           | None -> None
           | Some f ->
-              let xroff = if c = "groff" then c ^ " -Tascii" else c in
-              Some (strf "%s < %s | %s" xroff f pager)
+              Some (strf "%s < %s | %s" c f pager)
           end
       in
       match cmd with
