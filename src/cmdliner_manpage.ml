@@ -433,11 +433,11 @@ let pp_to_temp_file pp_v v =
   with Sys_error _ -> None
 
 let find_cmd cmds =
-  let test, null = match Sys.os_type with
-  | "Win32" -> "where", " NUL"
-  | _ -> "type", "/dev/null"
+  let null = match Sys.os_type with
+  | "Win32" -> " NUL"
+  | _ -> "/dev/null"
   in
-  let cmd c = Sys.command (strf "%s %s 1>%s 2>%s" test c null null) = 0 in
+  let cmd c = Sys.command (strf "%s <%s 1>%s 2>%s" c null null null) = 0 in
   try Some (List.find cmd cmds) with Not_found -> None
 
 let pp_to_pager print ppf v =
@@ -460,7 +460,6 @@ let pp_to_pager print ppf v =
           begin match pp_to_temp_file (print `Groff) v with
           | None -> None
           | Some f ->
-              (* TODO use -Tutf8, but annoyingly maps U+002D to U+2212. *)
               let xroff = if c = "groff" then c ^ " -Tascii -P-c" else c in
               Some (strf "%s < %s | %s" xroff f pager)
           end
